@@ -266,7 +266,10 @@ def main():
             PrintInfo(" EXTRACTED Phone Numbers  ")
             PrintInfo("--------------------------")
             for pn in main4:
-                print INFO, pn
+                if pn.isdigit() is False:
+                    print INFO, pn
+                else:
+                    pass
 
         main5 = GrabSSN(sys.argv[1])
         if len(main5) > 0: # legit file, containing at least 1 SSN, ( - deliminated) number.
