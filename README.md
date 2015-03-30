@@ -3,7 +3,7 @@ Sensitive information extraction tool.
 
 Up-to-date Usage examples:
 -------------------------
-- https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
+https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
 
     GrabME - Extract Sensitive information from a file.
 
