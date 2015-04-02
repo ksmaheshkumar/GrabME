@@ -1,6 +1,10 @@
 # GrabME
 Sensitive information extraction tool.
 
+Up-to-date Usage examples:
+-------------------------
+https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
+
     GrabME - Extract Sensitive information from a file.
 
     Usage: ./grabme.py [FILE]
