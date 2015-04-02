@@ -540,7 +540,7 @@ def main():
         print "" # Better looking output.
 
     except Exception as e:
-        print e #| for debugging.
+        #print e #| for debugging.
         Help()
 
 if __name__ == "__main__": main()
