@@ -11,11 +11,13 @@ https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
 
     What can it extract ?:
 
-      Links
-      email addresses
-      ipv4, ipv6 addresses
-      MAC addresses with : or - (deliminators)
-      USA Based Telephone, Social Security and Major Credit Card numbers.
+    Links
+    hash values
+    email addresses
+    ipv4, ipv6 addresses
+    bitcoin wallet addresses
+    MAC addresses with : or - (deliminators)
+    USA Based Telephone, Social Security and Major Credit Card numbers.
 
 Guerrilla Warfare Free License ("GWFL") v1.0
 
