@@ -335,11 +335,13 @@ def main():
             UOD = {}
             for item in FoundIPv4s:
                 UOD[item] = 1
-            Keys = UOD.keys()
+            keys = UOD.keys()
             PrintInfo("--------------------------")
             PrintInfo("      EXTRACTED IPV4s     ")
             PrintInfo("--------------------------")
+            count = 0
             for output in keys:
+                count += 1
                 print INFO , output
             print "\n", STATUS, "Extracted {} IPv4(s) from {}".format(str(count), sys.argv[1])
 
@@ -360,7 +362,9 @@ def main():
             PrintInfo("--------------------------")
             PrintInfo("      EXTRACTED MACs      ")
             PrintInfo("--------------------------")
+            count = 0
             for output in keys:
+                count += 1
                 print INFO , output
             print "\n", STATUS, "{} Extracted MAC address(es) from {}".format(str(count), sys.argv[1])
 
@@ -540,7 +544,7 @@ def main():
         print "" # Better looking output.
 
     except Exception as e:
-        #print e #| for debugging.
+        print e #| for debugging.
         Help()
 
 if __name__ == "__main__": main()
