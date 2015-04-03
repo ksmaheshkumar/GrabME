@@ -1,6 +1,10 @@
 # GrabME
 Sensitive information extraction tool.
 
+Report a bug:
+-------------
+https://github.com/GuerrillaWarfare/GrabME/issues
+
 Up-to-date Usage examples:
 -------------------------
 https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
