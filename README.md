@@ -1,13 +1,17 @@
 # GrabME
 Sensitive information extraction tool.
 
-Up-to-date Usage examples:
+Usage examples:
 -------------------------
 https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
 
     GrabME - Extract Sensitive information from a file.
 
-    Usage: ./grabme.py [FILE]
+    Usage: ./grabme.py -f [FILE]
+
+    OR
+
+    ./grabme.py -f [FILE] -f [FILE] ... etc.
 
     What can it extract ?:
 
@@ -19,12 +23,17 @@ https://github.com/GuerrillaWarfare/GrabME/wiki/GrabME-Usage-Examples
     MAC addresses with : or - (deliminators)
     USA Based Telephone, Social Security and Major Credit Card numbers.
 
-Guerrilla Warfare Free License ("GWFL") v1.0
+Changelog:
+----------
+- Added an '-f' option, so multiple files can be read simultaneously.
 
-1. You're free to modify this software to YOUR liking or leave it as is.
+Protip:
+-------
+- Use the '-f' option multiple times to extract information from multiple files.
 
-2. This software comes as is, and may or may not receive any additional updates, Contact the developer for more help.
-
-3. The initial download and use of this software constitutes that you adhere and comply to the writing of this end user license agreement (EULA).
-
-4. The Developer is NOT at ALL under any circumstances responsible for YOUR actions or the actions of any other third part instances that may use this software for any illegal or nefarious activities.
+Guerrilla Warfare Free License ("GWFL"):
+----------------------------------------
+- You're free to modify this software to YOUR liking or leave it as is.
+- This software comes as is, and may or may not receive any additional updates, Contact the developer for help.
+- The initial download and use of this software constitutes that you adhere and comply to the writing of this EULA.
+- The Developer is NOT at ALL under any circumstances responsible for YOUR actions or the actions of any other third party instances that may use this software for any illegal or nefarious activities.
