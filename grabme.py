@@ -215,9 +215,9 @@ def GrabPhoneNumbers(fopn):
 def GrabMAC(fom):
 
     found = [] # List of found MAC (:, -, . deliminated) addresses
-    macsrch = re.compile(r'^([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})$')
-    macsrch1 = re.compile(r'^([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})$')
-
+    macsrch = re.compile(r'([0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2})')
+    macsrch1 = re.compile(r'([0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2})')
+    #macsrch1 = re.compile(r'([a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2}\-[a-fA-F0-9]{2})')
 
     with open(fom, 'rb') as FileWithMACS:
         for line in FileWithMACS:
@@ -364,12 +364,12 @@ def main(IFNOARGEXISTS):
                     if len(MACExtract) > 0: # legit file, containing at least 1 MAC, (: or - deliminated) address.
                         FoundMACS = [] # Re-filter, so you get exactly what you're looking for.
                         for instance in MACExtract:
-                            MCD = re.compile(r'^([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})$')
-                            MHD = re.compile(r'^([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})$')
-                            MCDC = MCD.findall(instance)
-                            MHDC = MHD.search(instance)
-                            for b in MCDC: FoundMACS.append(b)
-                            FoundMACS.append(MHDC.group())
+                            macsrch = re.compile(r'([0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2}\-[0-9A-Fa-f]{2})')
+                            macsrch1 = re.compile(r'([0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2}\:[0-9A-Fa-f]{2})')
+                            cdm = macsrch.findall(instance)
+                            hdm = macsrch1.findall(instance)
+                            for mach in hdm: FoundMACS.append(mach)
+                            for macc in cdm: FoundMACS.append(macc)
                         UOD = {}
                         for item in FoundMACS:
                             UOD[item] = 1
@@ -554,14 +554,14 @@ def main(IFNOARGEXISTS):
 
                     # The only real way to know if nothing returns at all.
                     if EmailExtract == [] and HashExtract == [] and BTCWAExtract == [] and LinkExtract == [] and IPv6Extract == [] and CCNExtract == [] and SSNExtract == [] and PNExtract == [] and MACExtract == [] and IPv4Extract == []:
-                        PrintInfo(FAIL, "No supported extract detected!")
+                        PrintInfo(FAIL, "No supported extract detected from {}".format(arg))
 
                     print "" # Better looking output.
 
-                except Exception as e:
+                except IndexError as e:
                     print e #| for debugging.
                     Help()
-    except Exception:
+    except IndexError:
             Help()
 
 def ExportFindingsToFile(filename='output.txt'):
