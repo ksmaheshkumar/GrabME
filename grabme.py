@@ -8,6 +8,7 @@
 # Native imports
 import re
 import sys
+import getopt
 
 class paint():
 
@@ -30,15 +31,17 @@ FAIL = paint.R+"[FAILED]"+paint.N+":"
 STATUS = paint.Y+"[STATUS]"+paint.N+":"
 
 # TO-DO List:
-# Try to shorten ipv6 regex
 # Add support for extracting things from MULTIPLE files.
 # Possibly add database to aggregate extracted information
 # Work on better case detection for diffent phone number formats
 # Add other country SSN Number support, GrabSSN currently only supports USA SSNs
 # Incorporate bitcoin pre-fixes into bitcoin grabbing function
 
+# Add grab facebook api key/secret/access_token method.
+# secret\s*[\=]+ <<< regex
+
 # Bug Reports:
-# None, yet.
+# Phone number false readinds.
 
 # Current Draw backs:
 # Can not grab any Bitcoin wallet addresses that are 31 - 32 characters in length.
@@ -282,9 +285,14 @@ def PrintInfo(sign='', pdata=''):
     print sign, pdata
 
 def Help():
-    print """    GrabME - Extract Sensitive information from a file.
+    print """
+    GrabME - Extract Sensitive information from a file.
 
-    Usage: """+paint.Y+"""./grabme.py"""+paint.N+""" """+paint.W+"""[FILE]"""+paint.N+"""
+    Usage: ./grabme.py -f [FILE]
+
+    OR
+
+    ./grabme.py -f [FILE] -f [FILE] ... etc.
 
     What can it extract ?:
 
@@ -297,254 +305,271 @@ def Help():
     USA Based Telephone, Social Security and Major Credit Card numbers.
     """
 
-def main():
-
+def main(IFNOARGEXISTS):
     try:
-        print ""
 
-        EmailExtract = GrabEmail(sys.argv[1]) # Collected emails
-        if len(EmailExtract) > 0: # legit file, containing at least 1 email address.
-            FoundEmails = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in EmailExtract:
-                EmailRegex = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
-                EmailContainer = EmailRegex.search(instance)
-                Emails = EmailContainer.group()
-                FoundEmails.append(Emails)
-            UOD = {}
-            for item in FoundEmails:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED Emails    ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO , output
-            print "\n", STATUS, "Extracted {} Email Address(es) from {}".format(str(count), sys.argv[1])
+        options, arguements = getopt.getopt(sys.argv[1:], 'f:')
+
+        for opt, arg in options:
+
+            if opt in '-f':
+
+                try:
+                    print ""
+
+                    EmailExtract = GrabEmail(arg) # Collected emails
+                    if len(EmailExtract) > 0: # legit file, containing at least 1 email address.
+                        FoundEmails = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in EmailExtract:
+                            EmailRegex = re.compile(r'[\w\-][\w\-\.]+@[\w\-][\w\-\.]+[a-zA-Z]{1,4}')
+                            EmailContainer = EmailRegex.search(instance)
+                            Emails = EmailContainer.group()
+                            FoundEmails.append(Emails)
+                        UOD = {}
+                        for item in FoundEmails:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED Emails    ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO , output
+                        print "\n", STATUS, "Extracted {} Email Address(es) from {}".format(str(count), arg)
 
 
-        IPv4Extract = GrabIPv4(sys.argv[1]) # Collected ipv4s
-        if len(IPv4Extract) > 0: # legit file, containing at least 1 ipv4 address.
-            FoundIPv4s = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in IPv4Extract:
-                IPv4Regex = re.compile(r'([0-9]+)(?:\.[0-9]+){3}')
-                IPv4Container = IPv4Regex.search(instance)
-                IPv4s = IPv4Container.group()
-                FoundIPv4s.append(IPv4s)
-            UOD = {}
-            for item in FoundIPv4s:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED IPV4s     ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO , output
-            print "\n", STATUS, "Extracted {} IPv4(s) from {}".format(str(count), sys.argv[1])
+                    IPv4Extract = GrabIPv4(arg) # Collected ipv4s
+                    if len(IPv4Extract) > 0: # legit file, containing at least 1 ipv4 address.
+                        FoundIPv4s = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in IPv4Extract:
+                            IPv4Regex = re.compile(r'([0-9]+)(?:\.[0-9]+){3}')
+                            IPv4Container = IPv4Regex.search(instance)
+                            IPv4s = IPv4Container.group()
+                            FoundIPv4s.append(IPv4s)
+                        UOD = {}
+                        for item in FoundIPv4s:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED IPV4s     ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO , output
+                        print "\n", STATUS, "Extracted {} IPv4(s) from {}".format(str(count), arg)
 
-        MACExtract = GrabMAC(sys.argv[1])
-        if len(MACExtract) > 0: # legit file, containing at least 1 MAC, (: or - deliminated) address.
-            FoundMACS = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in MACExtract:
-                MCD = re.compile(r'^([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})$')
-                MHD = re.compile(r'^([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})$')
-                MCDC = MCD.findall(instance)
-                MHDC = MHD.search(instance)
-                for b in MCDC: FoundMACS.append(b)
-                FoundMACS.append(MHDC.group())
-            UOD = {}
-            for item in FoundMACS:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED MACs      ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO , output
-            print "\n", STATUS, "{} Extracted MAC address(es) from {}".format(str(count), sys.argv[1])
+                    MACExtract = GrabMAC(arg)
+                    if len(MACExtract) > 0: # legit file, containing at least 1 MAC, (: or - deliminated) address.
+                        FoundMACS = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in MACExtract:
+                            MCD = re.compile(r'^([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})\:([0-9A-F]{1,2})$')
+                            MHD = re.compile(r'^([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})\-([0-9A-F]{1,2})$')
+                            MCDC = MCD.findall(instance)
+                            MHDC = MHD.search(instance)
+                            for b in MCDC: FoundMACS.append(b)
+                            FoundMACS.append(MHDC.group())
+                        UOD = {}
+                        for item in FoundMACS:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED MACs      ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO , output
+                        print "\n", STATUS, "{} Extracted MAC address(es) from {}".format(str(count), arg)
 
-        PNExtract = GrabPhoneNumbers(sys.argv[1])
-        if len(PNExtract) > 0 and len(PNExtract[0]) < 15: # Try not to grab any CCNs
-            FoundPhoneNumbers = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in PNExtract:
-                PNRegex = re.compile(r'(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$')
-                PNC = PNRegex.search(instance)
-                PN = PNC.group()
-                FoundPhoneNumbers.append(PN)
-            UOD = {}
-            for item in FoundPhoneNumbers:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo(" EXTRACTED Phone Numbers  ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                if output.isdigit() is False:
-                    print INFO, output
-                else:
-                    pass
-            print "\n", STATUS, "{} Extracted Phone Number(s) from {}".format(str(count), sys.argv[1])
+                    PNExtract = GrabPhoneNumbers(arg)
+                    if len(PNExtract) > 0 and len(PNExtract[0]) < 15: # Try not to grab any CCNs
+                        FoundPhoneNumbers = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in PNExtract:
+                            PNRegex = re.compile(r'(\d{3})\D*(\d{3})\D*(\d{4})\D*(\d*)$')
+                            PNC = PNRegex.search(instance)
+                            PN = PNC.group()
+                            FoundPhoneNumbers.append(PN)
+                        UOD = {}
+                        for item in FoundPhoneNumbers:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo(" EXTRACTED Phone Numbers  ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            if output.isdigit() is False:
+                                print INFO, output
+                            else:
+                                pass
+                        print "\n", STATUS, "{} Extracted Phone Number(s) from {}".format(str(count), arg)
 
-        SSNExtract = GrabSSN(sys.argv[1])
-        if len(SSNExtract) > 0: # legit file, containing at least 1 SSN, ( - deliminated) number.
-            FoundSSNs = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in SSNExtract:
-                SSN1Regex = re.compile(r'^(?!000|666)[0-8][0-9]{2}(?!00)[0-9]{2}(?!0000)[0-9]{4}$')
-                SSN2Regex = re.compile(r'^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$')
-                SSN1LIST = SSN1Regex.findall(instance) # no deliminator
-                SSN2LIST = SSN2Regex.findall(instance) # - deliminator
-                for SSNV1 in SSN1LIST: FoundSSNs.append(SSNV1)
-                for SSNV2 in SSN2LIST: FoundSSNs.append(SSNV2)
-            UOD = {}
-            for item in FoundSSNs:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED SSNs      ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO, output
-            print "\n", STATUS, "Extracted {} SSN(s) from {}".format(str(count), sys.argv[1])
+                    SSNExtract = GrabSSN(arg)
+                    if len(SSNExtract) > 0: # legit file, containing at least 1 SSN, ( - deliminated) number.
+                        FoundSSNs = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in SSNExtract:
+                            SSN1Regex = re.compile(r'^(?!000|666)[0-8][0-9]{2}(?!00)[0-9]{2}(?!0000)[0-9]{4}$')
+                            SSN2Regex = re.compile(r'^(?!000|666)[0-8][0-9]{2}-(?!00)[0-9]{2}-(?!0000)[0-9]{4}$')
+                            SSN1LIST = SSN1Regex.findall(instance) # no deliminator
+                            SSN2LIST = SSN2Regex.findall(instance) # - deliminator
+                            for SSNV1 in SSN1LIST: FoundSSNs.append(SSNV1)
+                            for SSNV2 in SSN2LIST: FoundSSNs.append(SSNV2)
+                        UOD = {}
+                        for item in FoundSSNs:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED SSNs      ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO, output
+                        print "\n", STATUS, "Extracted {} SSN(s) from {}".format(str(count), arg)
 
-        CCNExtract = GrabCreditCard(sys.argv[1])
-        if len(CCNExtract) > 0: # legit file, containing at least 1 CCN  numbers.
-            FoundCCNs = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in CCNExtract:
-                CCNRegex = re.compile(r'^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$')
-                CCNLIST = CCNRegex.search(instance)
-                CCN = CCNLIST.group()
-                FoundCCNs.append(CCN)
-            UOD = {}
-            for item in FoundCCNs:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED CCNs      ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO, output
-            print "\n", STATUS, "Extracted {} CCN(s) from {}".format(str(count), sys.argv[1])
+                    CCNExtract = GrabCreditCard(arg)
+                    if len(CCNExtract) > 0: # legit file, containing at least 1 CCN  numbers.
+                        FoundCCNs = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in CCNExtract:
+                            CCNRegex = re.compile(r'^(?:(4[0-9]{12}(?:[0-9]{3})?)|(5[1-5][0-9]{14})|(6(?:011|5[0-9]{2})[0-9]{12})|(3[47][0-9]{13})|(3(?:0[0-5]|[68][0-9])[0-9]{11})|((?:2131|1800|35[0-9]{3})[0-9]{11}))$')
+                            CCNLIST = CCNRegex.search(instance)
+                            CCN = CCNLIST.group()
+                            FoundCCNs.append(CCN)
+                        UOD = {}
+                        for item in FoundCCNs:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED CCNs      ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO, output
+                        print "\n", STATUS, "Extracted {} CCN(s) from {}".format(str(count), arg)
 
-        IPv6Extract = GrabIPv6(sys.argv[1])
-        if len(IPv6Extract) > 0: # legit file, containing at least 1 ipv6 number.
-            FoundIPV6s = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in IPv6Extract:
-                IPv6Regex = re.compile(r'^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$')
-                IPv6List = IPv6Regex.search(instance)
-                IPv6s = IPv6List.group()
-                FoundIPV6s.append(IPv6s)
-            UOD = {}
-            for item in FoundIPV6s:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED IPv6s     ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO, output
-            print "\n", STATUS, "Extracted {} IPv6(s) from {}".format(str(count), sys.argv[1])
+                    IPv6Extract = GrabIPv6(arg)
+                    if len(IPv6Extract) > 0: # legit file, containing at least 1 ipv6 number.
+                        FoundIPV6s = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in IPv6Extract:
+                            IPv6Regex = re.compile(r'^\s*((([0-9A-Fa-f]{1,4}:){7}([0-9A-Fa-f]{1,4}|:))|(([0-9A-Fa-f]{1,4}:){6}(:[0-9A-Fa-f]{1,4}|((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){5}(((:[0-9A-Fa-f]{1,4}){1,2})|:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3})|:))|(([0-9A-Fa-f]{1,4}:){4}(((:[0-9A-Fa-f]{1,4}){1,3})|((:[0-9A-Fa-f]{1,4})?:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){3}(((:[0-9A-Fa-f]{1,4}){1,4})|((:[0-9A-Fa-f]{1,4}){0,2}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){2}(((:[0-9A-Fa-f]{1,4}){1,5})|((:[0-9A-Fa-f]{1,4}){0,3}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(([0-9A-Fa-f]{1,4}:){1}(((:[0-9A-Fa-f]{1,4}){1,6})|((:[0-9A-Fa-f]{1,4}){0,4}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:))|(:(((:[0-9A-Fa-f]{1,4}){1,7})|((:[0-9A-Fa-f]{1,4}){0,5}:((25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)(\.(25[0-5]|2[0-4]\d|1\d\d|[1-9]?\d)){3}))|:)))(%.+)?\s*$')
+                            IPv6List = IPv6Regex.search(instance)
+                            IPv6s = IPv6List.group()
+                            FoundIPV6s.append(IPv6s)
+                        UOD = {}
+                        for item in FoundIPV6s:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED IPv6s     ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO, output
+                        print "\n", STATUS, "Extracted {} IPv6(s) from {}".format(str(count), arg)
 
-        LinkExtract = GrabLink(sys.argv[1])
-        if len(LinkExtract) > 0: # legit file, containing at least 1 link.
-            FoundLinks = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in LinkExtract:
-                LinkExtractRegex = re.compile(r'^((https|ftp|http|data|dav|cid|chrome|apt|cvs|bitcoin|dns|imap|irc|ldap|mailto|magnet|proxy|res|rsync|rtmp|rtsp|shttp|sftp|skype|ssh|snmp|snews|svn|telnet|tel|tftp|udp)://|(www|ftp)\.)[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$')
-                LinkList = LinkExtractRegex.search(instance)
-                Links = LinkList.group()
-                FoundLinks.append(Links)
-            UOD = {}
-            for item in FoundLinks:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("      EXTRACTED link(s)   ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO, output
-            print "\n", STATUS, "Extracted {} link(s) from {}".format(str(count), sys.argv[1])
+                    LinkExtract = GrabLink(arg)
+                    if len(LinkExtract) > 0: # legit file, containing at least 1 link.
+                        FoundLinks = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in LinkExtract:
+                            LinkExtractRegex = re.compile(r'^((https|ftp|http|data|dav|cid|chrome|apt|cvs|bitcoin|dns|imap|irc|ldap|mailto|magnet|proxy|res|rsync|rtmp|rtsp|shttp|sftp|skype|ssh|snmp|snews|svn|telnet|tel|tftp|udp)://|(www|ftp)\.)[a-z0-9-]+(\.[a-z0-9-]+)+([/?].*)?$')
+                            LinkList = LinkExtractRegex.search(instance)
+                            Links = LinkList.group()
+                            FoundLinks.append(Links)
+                        UOD = {}
+                        for item in FoundLinks:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("      EXTRACTED link(s)   ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO, output
+                        print "\n", STATUS, "Extracted {} link(s) from {}".format(str(count), arg)
 
-        BTCWAExtract = GrabBitcoinWallet(sys.argv[1])
-        if len(BTCWAExtract) > 0: # legit file, containing at least 1 link.
-            FoundWallets = [] # Re-filter, so you get exactly what you're looking for.
+                    BTCWAExtract = GrabBitcoinWallet(arg)
+                    if len(BTCWAExtract) > 0: # legit file, containing at least 1 link.
+                        FoundWallets = [] # Re-filter, so you get exactly what you're looking for.
 
-            for instance in BTCWAExtract:
-                BTCWalletRegex = re.compile(r'(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{26,30}(?![a-km-zA-HJ-NP-Z0-9])|(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{33,35}(?![a-km-zA-HJ-NP-Z0-9])')
-                wallet = BTCWalletRegex.findall(instance)
-                for address in wallet: FoundWallets.append(address)
-            UOD = {}
-            for item in FoundWallets:
-                UOD[item] = 1
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("  EXTRACTED BTC Addresses ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO, output
-            print "\n", STATUS, "Extracted {} Bitcoin address('s) from {}".format(str(count), sys.argv[1])
+                        for instance in BTCWAExtract:
+                            BTCWalletRegex = re.compile(r'(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{26,30}(?![a-km-zA-HJ-NP-Z0-9])|(?<![a-km-zA-HJ-NP-Z0-9])[13][a-km-zA-HJ-NP-Z0-9]{33,35}(?![a-km-zA-HJ-NP-Z0-9])')
+                            wallet = BTCWalletRegex.findall(instance)
+                            for address in wallet: FoundWallets.append(address)
+                        UOD = {}
+                        for item in FoundWallets:
+                            UOD[item] = 1
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("  EXTRACTED BTC Addresses ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO, output
+                        print "\n", STATUS, "Extracted {} Bitcoin address('s) from {}".format(str(count), arg)
 
-        HashExtract = GrabHash(sys.argv[1])
-        if len(HashExtract) > 0: # If you actually grab something then continue
-            FoundHashes = [] # Re-filter, so you get exactly what you're looking for.
-            for instance in HashExtract:
-                # Stand-alone regex's for finding hash values.
-                md5regex = re.compile(r'[a-fA-F0-9]{32}')
-                sha1regex = re.compile(r'[[a-fA-F0-9]{40}')
-                sha256regex = re.compile(r'[a-fA-F0-9]{64}')
-                sha384regex = re.compile(r'[a-fA-F0-9]{96}')
-                sha512regex = re.compile(r'[a-fA-F0-9]{128}')
+                    HashExtract = GrabHash(arg)
+                    if len(HashExtract) > 0: # If you actually grab something then continue
+                        FoundHashes = [] # Re-filter, so you get exactly what you're looking for.
+                        for instance in HashExtract:
+                            # Stand-alone regex's for finding hash values.
+                            md5regex = re.compile(r'[a-fA-F0-9]{32}')
+                            sha1regex = re.compile(r'[[a-fA-F0-9]{40}')
+                            sha256regex = re.compile(r'[a-fA-F0-9]{64}')
+                            sha384regex = re.compile(r'[a-fA-F0-9]{96}')
+                            sha512regex = re.compile(r'[a-fA-F0-9]{128}')
 
-                # Find hash value of given regex's
-                md5list = md5regex.findall(instance)
-                sha1list = sha1regex.findall(instance)
-                sha256list = sha256regex.findall(instance)
-                sha384list = sha384regex.findall(instance)
-                sha512list = sha512regex.findall(instance)
+                            # Find hash value of given regex's
+                            md5list = md5regex.findall(instance)
+                            sha1list = sha1regex.findall(instance)
+                            sha256list = sha256regex.findall(instance)
+                            sha384list = sha384regex.findall(instance)
+                            sha512list = sha512regex.findall(instance)
 
-                # Add hash values to un-filtered list for filtering.
-                for md5 in md5list: FoundHashes.append(md5)
-                for sha1 in sha1list: FoundHashes.append(sha1)
-                for sha256 in sha256list: FoundHashes.append(sha256)
-                for sha384 in sha384list: FoundHashes.append(sha384)
-                for sha512 in sha512list: FoundHashes.append(sha512)
+                            # Add hash values to un-filtered list for filtering.
+                            for md5 in md5list: FoundHashes.append(md5)
+                            for sha1 in sha1list: FoundHashes.append(sha1)
+                            for sha256 in sha256list: FoundHashes.append(sha256)
+                            for sha384 in sha384list: FoundHashes.append(sha384)
+                            for sha512 in sha512list: FoundHashes.append(sha512)
 
-            UOD = {} # Filter out any duplicates
-            for item in FoundHashes:
-                UOD[item] = 1 # No duplicates at all !
-            keys = UOD.keys()
-            PrintInfo("--------------------------")
-            PrintInfo("   Extracted Hash Values  ")
-            PrintInfo("--------------------------")
-            count = 0
-            for output in keys:
-                count += 1
-                print INFO, output
-            print "\n", STATUS, "Extracted {} Hash(es) found from {}".format(str(count), sys.argv[1])
+                        UOD = {} # Filter out any duplicates
+                        for item in FoundHashes:
+                            UOD[item] = 1 # No duplicates at all !
+                        keys = UOD.keys()
+                        PrintInfo("--------------------------")
+                        PrintInfo("   Extracted Hash Values  ")
+                        PrintInfo("--------------------------")
+                        count = 0
+                        for output in keys:
+                            count += 1
+                            print INFO, output
+                        print "\n", STATUS, "Extracted {} Hash(es) found from {}".format(str(count), arg)
 
-        # The only real way to know if nothing returns at all.
-        if EmailExtract == [] and HashExtract == [] and BTCWAExtract == [] and LinkExtract == [] and IPv6Extract == [] and CCNExtract == [] and SSNExtract == [] and PNExtract == [] and MACExtract == [] and IPv4Extract == []:
-            PrintInfo(FAIL, "No supported extract detected!")
+                    # The only real way to know if nothing returns at all.
+                    if EmailExtract == [] and HashExtract == [] and BTCWAExtract == [] and LinkExtract == [] and IPv6Extract == [] and CCNExtract == [] and SSNExtract == [] and PNExtract == [] and MACExtract == [] and IPv4Extract == []:
+                        PrintInfo(FAIL, "No supported extract detected!")
 
-        print "" # Better looking output.
+                    print "" # Better looking output.
 
-    except Exception as e:
-        print e #| for debugging.
+                except Exception as e:
+                    print e #| for debugging.
+                    Help()
+    except Exception:
+            Help()
+
+def ExportFindingsToFile(filename='output.txt'):
+    #Export findings to file.
+    pass
+
+if __name__ == "__main__":
+    try:
+        main(sys.argv[1])
+    except IndexError:
         Help()
-
-if __name__ == "__main__": main()
